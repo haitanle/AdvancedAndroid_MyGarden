@@ -27,7 +27,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/water_drop_blue" />
+        android:src="@drawable/water_drop_blue"
+        />
+
+    <TextView
+        android:id="@+id/widget_plantID_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"
+        android:textSize="23dp"
+        android:textStyle="bold"
+        tools:text="plantID"
+        />
 
     <ImageView
         android:id="@+id/widget_plant_image"
@@ -35,15 +47,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:src="@drawable/grass" />
-
-    <TextView
-        android:id="@+id/widget_plant_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_gravity="center_horizontal"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        tools:text="123" />
 
 </LinearLayout>

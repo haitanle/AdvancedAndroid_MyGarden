@@ -21,32 +21,62 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.opengl.Visibility;
+import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
+import com.example.android.mygarden.provider.PlantContract;
 import com.example.android.mygarden.ui.MainActivity;
+import com.example.android.mygarden.ui.PlantDetailActivity;
 
 public class PlantWidgetProvider extends AppWidgetProvider {
 
     // setImageViewResource to update the widget’s image
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int imgRes, int appWidgetId) {
+                                long plantId, int imgRes, boolean waterPlantsAllow, int appWidgetId) {
 
-        // TODO (3): Set the click handler to open the DetailActivity for plant ID,
+        // done (3): Set the click handler to open the DetailActivity for plant ID,
         // or the MainActivity if plant ID is invalid
-        // Create an Intent to launch MainActivity when clicked
-        Intent intent = new Intent(context, MainActivity.class);
+
+        Intent intent;
+        if (plantId != PlantContract.INVALID_PLANT_ID){
+            Log.d("log", "Plant id clicked: "+String.valueOf(plantId));
+            intent = new Intent(context, PlantDetailActivity.class);
+            intent.setAction("actionToThis");
+            intent.putExtra(PlantWateringService.EXTRA_PLANT_ID, plantId);
+        }else {
+            intent = new Intent(context, MainActivity.class);
+        }
+
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.plant_widget);
+
         // Update image
         views.setImageViewResource(R.id.widget_plant_image, imgRes);
+
+        // Set the PlantId to the Textview
+        views.setTextViewText(R.id.widget_plantID_text, String.valueOf(plantId));
+
         // Widgets allow click handlers to only launch pending intents
         views.setOnClickPendingIntent(R.id.widget_plant_image, pendingIntent);
+
         // Add the wateringservice click handler
         Intent wateringIntent = new Intent(context, PlantWateringService.class);
-        wateringIntent.setAction(PlantWateringService.ACTION_WATER_PLANTS);
+        wateringIntent.setAction(PlantWateringService.ACTION_WATER_PLANT);
+        wateringIntent.putExtra(PlantWateringService.EXTRA_PLANT_ID, plantId);
+
         PendingIntent wateringPendingIntent = PendingIntent.getService(context, 0, wateringIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setOnClickPendingIntent(R.id.widget_water_button, wateringPendingIntent);
+
+        // do not show water button if plants is new
+        if (!waterPlantsAllow){
+            views.setViewVisibility(R.id.widget_water_button, View.INVISIBLE);
+        } else {
+            views.setViewVisibility(R.id.widget_water_button, View.VISIBLE);
+        }
+
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
@@ -57,12 +87,12 @@ public class PlantWidgetProvider extends AppWidgetProvider {
         PlantWateringService.startActionUpdatePlantWidgets(context);
     }
 
-    // TODO (2): Modify updatePlantWidgets and updateAppWidget to pass the plant ID as well as a boolean
+    // done (2): Modify updatePlantWidgets and updateAppWidget to pass the plant ID as well as a boolean
     // to show/hide the water button
     public static void updatePlantWidgets(Context context, AppWidgetManager appWidgetManager,
-                                          int imgRes, int[] appWidgetIds) {
+                                          long plantId, int imgRes, boolean waterPlantsAllow, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, imgRes, appWidgetId);
+            updateAppWidget(context, appWidgetManager, plantId, imgRes, waterPlantsAllow, appWidgetId);
         }
     }
 
